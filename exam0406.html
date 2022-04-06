@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>20220406</title>
+    <style>
+        /*하단 li.초록은 태그1+class10으로 11의 우선순위로 위치는 앞이지만 12번 13번보다 더 우선적용*/
+        li.초록 {color:pink}
+        /*같은 class에 속한다면 가장 뒤에 쓴 명령어가 적용된다 */
+    
+       .빨강 {color: red;}
+       .초록 {color:green;} 
+        div {border : 1px solid blue;}
+        a {text-decoration: none;}
+
+    </style>
+</head>
+<body>
+    <div>
+    <h1>계절</h1>
+        <ul>
+            <!--class 두개를 합치는 방법:띄어쓰기-->
+            <li class='초록 빨강' >봄</li>
+            <li>여름</li>
+            <li>가을</li>
+            <li>겨울</li>
+        </ul>
+    </div>
+
+    <div>
+    <h1>자주가는 사이트 순위</h1>
+        <ol>
+            <li>
+                <a href="http://www.naver.com">네이버</a>
+            </li>
+            <li >
+                <a href="http://www.daum.net" >다음</a>
+            </li>
+        </ol>
+    </div>
+
+</body>
+</html>
