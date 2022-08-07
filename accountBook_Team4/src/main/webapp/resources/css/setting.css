@@ -1,0 +1,76 @@
+@charset "UTF-8";
+/* 거래처 테이블 */
+/* #cuTable {display: table;}
+.cuBody {display: table-row-group;}
+.cuRow {display: table-row;}
+.cuItem, .cuHeader {display: table-cell;}
+.cuHead {display: table-header-group;} */
+#cuTable {
+	float: left;
+	width: 100%;
+	border-bottom: 1px solid #eee;
+	background-color:#eee3;
+	margin-bottom: 10%;
+}
+.cuHead {
+	display: flex;
+	width: 100%;
+	background: #fff;
+	padding-left: 3%;
+}
+.cuBody {
+	width: 100%;
+}
+.cuRow {
+	cursor: pointer;
+	width: 100%;
+	height:auto;
+	position: relative;
+	overflow: hidden;
+	transition: all 0.3s ease-in-out;
+	font-size: 15px;
+	border-top: 1px solid #eee;
+}
+.cuItem, .cuHeader {
+	padding: 15px 0px;
+	text-align: left;
+	align-items: center; 
+	float: left;
+	word-break: keep-all;
+}
+#cuTable .cuItem, #cuTable .cuHeader {
+	border: 1px solid #eee;
+	padding: 5px 4px;
+}
+#cuTable .cuHeader {
+	text-align: center;
+}
+#cuTable .cuBody .cuItem {font-size: 13px;}
+
+#cuTable .cuHeader .cuHead {
+	font-size: 15px;
+	font-weight: bold;
+	color: #000000;
+	text-align: left;
+}
+
+/* 거래처 요소 */
+.cuItem {
+	height: 2rem;
+}
+.cuItem.code{
+	width: 10%;
+}
+.name {
+	width: 30%;
+}
+.mocode {
+	width: 30%;
+}
+.cbtn {
+	width: 5%;
+}
+input {
+	border: none;
+	height: inherit;
+}

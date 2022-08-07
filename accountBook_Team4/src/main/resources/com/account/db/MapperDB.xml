@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.account.db.MapperDB">
+	<!-- 회원가입 -->
+	<select id="getMmCode" resultType="string">
+		SELECT TO_CHAR(TO_NUMBER(MAX(MM_CODE))+1) AS MMCODE	FROM MM
+	</select>
+	<insert id="insMember" parameterType="com.account.bean.AccessBean">
+		INSERT INTO MM(MM_CODE,MM_PASSWORD,MM_NAME,MM_PHONE)
+		VALUES(#{MMCODE},#{MMPASSWORD},#{MMNAME},#{MMPHONE})
+	</insert>
+	<insert id="insTotalMoney" parameterType="com.account.bean.AccessBean">
+		INSERT INTO TOTALMONEY(TM_MMCODE,TM_MAX,TM_MIN) 
+		VALUES(#{MMCODE},0,0)
+	</insert>
+	<!-- 로그인 -->
+	<select id="matchPassword" parameterType="com.account.bean.AccessBean" resultType="string"> 
+	 SELECT MM_PASSWORD  FROM MM WHERE MM_CODE= #{MMCODE}  
+	</select>
+	<select id="isAccess" parameterType="com.account.bean.AccessBean" resultType="string">
+		SELECT AH_PUBLICIP ||':'||AH_PRIVATEIP AS AHPUBLICIP
+		FROM AH 
+		WHERE TO_CHAR(AH_DATE,'YYMMDD')=TO_CHAR(SYSDATE,'YYMMDD') AND AH_MMCODE=#{MMCODE}
+		GROUP BY AH_MMCODE,AH_PUBLICIP,AH_PRIVATEIP
+		HAVING SUM(AH_ACTION)=1
+	</select>
+	<insert id="insAsl" parameterType="com.account.bean.AccessBean">
+	 INSERT INTO AH(AH_MMCODE, AH_DATE, AH_PUBLICIP,AH_PRIVATEIP,AH_ACTION)
+ 	VALUES(#{MMCODE},DEFAULT,#{AHPUBLICIP},#{AHPRIVATEIP},#{AHACTION})
+	</insert>
+	<select id="getAccessInfo" parameterType="com.account.bean.AccessBean" resultType="com.account.bean.AccessBean">
+		SELECT * FROM ACCESSINFO WHERE MMCODE = #{MMCODE}
+	</select>
+	<!-- 비밀번호 찾기 -->
+	<select id = "getPassword" parameterType="com.account.bean.AccessBean" resultType="com.account.bean.AccessBean">
+		SELECT 	MM_CODE AS MMCODE,
+				MM_NAME AS MMNAME,
+				MM_PASSWORD AS MMPASSWORD 
+		FROM MM
+		WHERE MM_CODE = #{MMCODE} AND MM_NAME = #{MMNAME} AND MM_PHONE = #{MMPHONE}
+	</select>
+	<select id="isPassword" parameterType="com.account.bean.SettingBean" resultType="String">
+		SELECT MM_PASSWORD FROM MM WHERE MM_CODE = #{MMCODE}
+	</select>
+	<update id="updPassword" parameterType="com.account.bean.SettingBean" >
+		UPDATE MM SET MM_PASSWORD = #{MMPASSWORD} WHERE MM_CODE = #{MMCODE}
+	</update>
+	<!-- 거래처 -->
+	<select id="getCustomer" parameterType="com.account.bean.AccessBean" resultType="com.account.bean.SettingBean">
+		SELECT CU_CODE AS CUCODE, CU_NAME AS CUNAME, CU_MOCODE AS MOCODE, CU_MMCODE AS MMCODE 
+		FROM CU WHERE CU_MMCODE = #{MMCODE}
+	</select>
+	<select id="getCustomerCode" parameterType="com.account.bean.AccessBean" resultType="string">
+		SELECT NVL(TO_CHAR(TO_NUMBER(MAX(CU_CODE))+1),'1001') AS CUCODE
+		FROM CU WHERE CU_MMCODE = #{MMCODE}
+	</select>
+	<select id="isCuCode" parameterType="com.account.bean.SettingBean" resultType="int">
+		SELECT COUNT(*) FROM CU WHERE CU_MMCODE = #{MMCODE} AND CU_CODE = #{CUCODE}
+	</select>
+	<insert id="insCustomer" parameterType="com.account.bean.SettingBean">
+		INSERT INTO CU(CU_CODE,CU_NAME,CU_MOCODE,CU_MMCODE) VALUES(#{CUCODE},#{CUNAME},#{MOCODE},#{MMCODE})
+	</insert>
+	<update id="updCustomer" parameterType="com.account.bean.SettingBean">
+		UPDATE CU SET CU_NAME = #{CUNAME}, CU_MOCODE = #{MOCODE} WHERE CU_CODE = #{CUCODE} AND CU_MMCODE = #{MMCODE}
+	</update>
+	<delete id="delCustomer" parameterType="com.account.bean.SettingBean">
+		DELETE FROM CU WHERE CU_CODE = #{CUCODE} AND CU_MMCODE = #{MMCODE}
+	</delete>
+	<!-- 예산목록 -->
+	<select id="getMoneyList" parameterType="com.account.bean.AccessBean" resultType="com.account.bean.SettingBean">
+		SELECT MO_CODE AS MOCODE, MO_NAME AS MONAME FROM MO WHERE MO_MMCODE = #{MMCODE}
+	</select>
+	<!-- 사용자 테마 -->
+	<select id="getTheme" parameterType="com.account.bean.AccessBean" resultType="com.account.bean.SettingBean">
+	SELECT  ST_MMCODE AS MMCODE,
+        ST_HBCOLOR AS HBCOLOR,
+        ST_HFCOLOR AS HFCOLOR,
+        ST_CBCOLOR AS CBCOLOR,
+        ST_CFCOLOR AS CFCOLOR
+	FROM ST
+	WHERE ST_MMCODE = #{MMCODE}
+	</select>
+	<insert id="insTheme" parameterType="com.account.bean.SettingBean">
+	INSERT INTO ST(ST_MMCODE, ST_HBCOLOR, ST_HFCOLOR, ST_CBCOLOR, ST_CFCOLOR)
+	VALUES(#{MMCODE}, #{HBCOLOR}, #{HFCOLOR}, #{CBCOLOR}, #{CFCOLOR})
+	</insert>
+	<update id="updTheme" parameterType="com.account.bean.SettingBean">
+	UPDATE ST
+	SET ST_HBCOLOR = #{HBCOLOR}, ST_HFCOLOR = #{HFCOLOR}, ST_CBCOLOR = #{CBCOLOR}, ST_CFCOLOR = #{CFCOLOR}
+	WHERE ST_MMCODE = #{MMCODE}
+	</update>
+	<delete id="delTheme" parameterType="com.account.bean.AccessBean">
+	DELETE 
+	FROM ST
+	WHERE ST_MMCODE = #{MMCODE}
+	</delete>
+	<!-- 지수 예산설정 -->
+	<select id="getMoList" parameterType="java.util.HashMap" resultType="com.account.bean.MoneyBean">
+	SELECT  MMCODE,
+	        MOCODE,
+	        MONAME,
+	        TO_CHAR(MOTOTAL,'FM999,999,999,999') AS MOTOTAL,
+	        TO_CHAR(SPENDMONEY,'FM999,999,999,999') AS SPENDMONEY,
+	        ROUND((SPENDMONEY / MOTOTAL)*100) AS PERBG
+	FROM CABUDGET WHERE MMCODE= #{MMCODE}
+	</select>
+	<select id="getNMoList" resultType="com.account.bean.MoneyBean">
+	SELECT  MO_MMCODE AS MMCODE,
+        MO_CODE AS MOCODE,
+        MO_NAME AS MONAME,
+        TO_CHAR(MO_TOTAL,'FM999,999,999,999') AS MOTOTAL
+	FROM  MONEY
+	WHERE MO_CODE NOT IN (SELECT MOCODE FROM CABUDGET)
+	</select>
+	<select id="getMaxBudget" parameterType="java.util.HashMap" resultType="string">
+	SELECT TO_CHAR(TMMAX,'FM999,999,999,999')
+	FROM CABUDGET WHERE MMCODE = #{MMCODE}
+	GROUP BY TMMAX
+	</select>
+	<select id="getMinBudget" parameterType="java.util.HashMap" resultType="string">
+	SELECT TO_CHAR(TMMIN,'FM999,999,999,999')
+	FROM CABUDGET WHERE MMCODE = #{MMCODE}
+	GROUP BY TMMIN
+	</select>
+	<select id="getTotalSpendBudget" parameterType="java.util.HashMap" resultType="string">
+	SELECT TO_CHAR(SUM(SPENDMONEY),'FM999,999,999,999') AS SPENDTOTALMONEY
+	FROM CABUDGET WHERE MMCODE = #{MMCODE}
+	GROUP BY TMMAX
+	</select>
+	<update id="updTotalBudget" parameterType="java.util.HashMap" >
+	UPDATE TM SET TM_MAX = #{TMMAX} WHERE TM_MMCODE = #{MMCODE}
+	</update>
+	<update id="updMinBudget" parameterType="java.util.HashMap" >
+	UPDATE TM SET TM_MIN = #{TMMIN} WHERE TM_MMCODE = #{MMCODE}
+	</update>
+	<select id="isUseCustomer" parameterType="com.account.bean.MoneyBean" resultType="string">
+	SELECT COUNT(*)
+	FROM CUSTOMER WHERE CU_MOCODE= #{MOCODE}
+	</select>
+	<update id="delMoInCu" parameterType="com.account.bean.MoneyBean" >
+	UPDATE CUSTOMER SET CU_MOCODE='' WHERE CU_MOCODE=#{MOCODE}
+	</update>
+	<delete id="delMoneyCa" parameterType="com.account.bean.MoneyBean">
+	DELETE FROM MONEY WHERE MO_CODE = #{MOCODE}
+	</delete>
+	<select id="getMoCode" parameterType="com.account.bean.MoneyBean" resultType="string">
+	SELECT NVL (MAX(MO_CODE)+1 , 101 )
+	FROM MONEY WHERE MO_MMCODE= #{MMCODE}
+	</select>
+	<insert id="insMoney" parameterType="com.account.bean.MoneyBean">
+	INSERT INTO MO(MO_MMCODE,MO_CODE,MO_NAME,MO_TOTAL)
+	VALUES(#{MMCODE},#{MOCODE},#{MONAME},#{MOTOTAL})
+	</insert>
+	<update id="updMoney" parameterType="com.account.bean.MoneyBean">
+	UPDATE MO SET MO_NAME = #{MONAME}, MO_TOTAL = #{MOTOTAL} WHERE MO_MMCODE = #{MMCODE} AND MO_CODE= #{MOCODE}
+	</update>
+	<select id="getStatus" parameterType="java.util.HashMap" resultType="com.account.bean.MoneyBean">
+	SELECT  TO_CHAR((TMMAX - SUM(SPENDMONEY)),'FM999,999,999,999') AS STATUS,
+	        TO_CHAR(TMMAX,'FM999,999,999,999') AS TMMAX,
+	        TO_CHAR(TMMIN,'FM999,999,999,999') AS TMMIN
+	FROM CABUDGET WHERE MMCODE =  #{MMCODE}
+	GROUP BY TMMAX,TMMIN
+	</select>
+</mapper>
