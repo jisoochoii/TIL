@@ -10,4 +10,6 @@ public class InOutBean {
 	private String IOMONEY;
 	private String IOMEMO;
 
+	/* 현재 달 */
+	private String MONTH;
 }

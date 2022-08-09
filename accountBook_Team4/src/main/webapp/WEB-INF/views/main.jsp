@@ -21,21 +21,31 @@ function init() {
 	header.style.color = themeCode[1];
 	container.style.background = themeCode[2];
 	container.style.color = themeCode[3];
+	
+	// 당월로 달력 기본 설정
+	document.getElementById('MONTH').value= new Date().toISOString().slice(0, 7);
+
 }
 	// 슬기 - 페이지 이동
     function movePage(action) {
         let form = document.getElementsByName("serverForm")[0];
+        
+		// 지수 - 선택한 달 서버로 보내주기
+		let month = document.getElementById("MONTH").value;
+		
+		form.appendChild(createHidden("MONTH", month));
 
         form.action = action;
-        form.method = "get";
+        form.method = "post";
 
         form.submit();
     }
 </script>
 </head>
 <body onload="init()">
+ 
     <div id="header">
-        <div id="yearBox"><input type="month"></div>
+        <div id="yearBox"><input id="MONTH" type="month"></div>
         <div id="userInfo">사용자 정보<i class="fa-solid fa-user"></i></div>
         <div id="setting"><i class="fa-solid fa-gear"></i></div>
     	<input type="button" value = "로그아웃" class = "btn" onclick="logout()" />	<!-- 로그아웃 -->
@@ -49,7 +59,7 @@ function init() {
         </div>
     </div>
 
-    <form name="serverForm"></form>
+	   <form name="serverForm"></form>
     <div id="footer">
         
     </div>

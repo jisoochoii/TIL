@@ -1,5 +1,8 @@
 package com.account.team4;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,7 +102,7 @@ public class HomeController {
 	}
 	
 	// 설화 - 메인 페이지 이동 
-	@RequestMapping(value = "/Main", method = RequestMethod.GET)
+	@RequestMapping(value = "/Main", method = RequestMethod.POST)
 	public ModelAndView mainPage(HttpServletRequest req, ModelAndView mav, @ModelAttribute AccessBean ab) {
 		// 설화 - 로그인시 사용자의 지정테마를 불러오기
 		this.st.backController(mav, 2);
@@ -108,24 +111,69 @@ public class HomeController {
 	}
 	
 	// 슬기 - 입력페이지 이동 
-	@RequestMapping(value = "/Inout", method = RequestMethod.GET)
+	@RequestMapping(value = "/Inout", method = RequestMethod.POST)
 	public ModelAndView inout(HttpServletRequest req, ModelAndView mav, @ModelAttribute InOutBean iob) {
+		/*
+		 *  지수 - 넘어온 month를 현재 달과 같은지 아닌지 판별해서 다르게 보내줌 
+		long time = System.currentTimeMillis();
+		SimpleDateFormat date = new SimpleDateFormat("yyyy-MM");
+		String month = date.format(new Date(time));
+		mav.addObject(mb);
+
+		
+		if(mb.getMONTH().equals(month)) {
+			// 넘어온 month가 현재 달과 일치할때
+			this.mo.backController(mav, 0);
+		}else {
+		// 일치하지 않을때
+		this.mo.backController(mav, 1);
+		}
+		 * */
 		this.io.backController(mav, 0);
 		
 		return mav;
 	}
 	
 	// 슬기 - 예산페이지 이동
-	@RequestMapping(value = "/Money", method = RequestMethod.GET)
+	@RequestMapping(value = "/Money", method = RequestMethod.POST)
 	public ModelAndView money(HttpServletRequest req, ModelAndView mav, @ModelAttribute MoneyBean mb) {
-		this.mo.backController(mav, 0);
+		/* 지수 - 넘어온 month를 현재 달과 같은지 아닌지 판별해서 다르게 보내줌 */
+		long time = System.currentTimeMillis();
+		SimpleDateFormat date = new SimpleDateFormat("yyyy-MM");
+		String month = date.format(new Date(time));
+		mav.addObject(mb);
+		
+		if(mb.getMONTH().equals(month)) {
+			// 넘어온 month가 현재 달과 일치할때
+			this.mo.backController(mav, 0);
+		}else {
+		// 일치하지 않을때
+		this.mo.backController(mav, 1);
+		}
 		
 		return mav;
 	}
 	
 	// 슬기 - 설정페이지 이동
-	@RequestMapping(value = "/Setting", method = RequestMethod.GET)
+	@RequestMapping(value = "/Setting", method = RequestMethod.POST)
 	public ModelAndView setting(HttpServletRequest req, ModelAndView mav, @ModelAttribute SettingBean sb) {
+		/*
+		 *  지수 - 넘어온 month를 현재 달과 같은지 아닌지 판별해서 다르게 보내줌 
+		long time = System.currentTimeMillis();
+		SimpleDateFormat date = new SimpleDateFormat("yyyy-MM");
+		String month = date.format(new Date(time));
+		mav.addObject(mb);
+
+		
+		if(mb.getMONTH().equals(month)) {
+			// 넘어온 month가 현재 달과 일치할때
+			this.mo.backController(mav, 0);
+		}else {
+		// 일치하지 않을때
+		this.mo.backController(mav, 1);
+		}
+		 * */
+		
 		this.st.backController(mav, 0);
 		
 		return mav;

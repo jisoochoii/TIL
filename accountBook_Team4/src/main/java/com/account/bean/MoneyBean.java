@@ -20,4 +20,7 @@ public class MoneyBean {
 	
 	/* 작업 수행 결과 alert 메세지 */
 	private String message;
+	
+	/* 현재 달 */
+	private String MONTH;
 }

@@ -156,3 +156,12 @@ function postAjaxJson(jobCode, clientData, fn) { //formdata
 	ajax.setRequestHeader("Content-Type", "application/x-www.form.urlencoded");
 	ajax.send(clientData);
 }
+/* 폼에 원하는 정보를 어펜드차일드 해주기 위한 메서드 */
+function createHidden(objName, value){
+	let input = document.createElement("input");
+	input.setAttribute("type", "hidden");
+	input.setAttribute("name", objName);
+	input.setAttribute("value", value);
+	
+	return input;
+}

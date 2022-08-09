@@ -32,10 +32,15 @@ public class Money implements AccountBookRule{
 	@Override
 	public void backController(ModelAndView mav, int num) {
 		switch(num) {
-		case 0: this.entrance(mav); break;
+		case 0: this.entrance(mav); 
+		break;
+		case 1: this.entrance2(mav); 
+		break;
 		default:
+		
 		}
 	}
+
 
 	@Override
 	public void backController(Model model, int num) {
@@ -58,9 +63,10 @@ public class Money implements AccountBookRule{
 
 	@Transactional
 	private void entrance(ModelAndView mav) {
+		// 지수 - 달력에서 선택한 달이 현재 달과 같을때
 		// 설화 - 로그인시 사용자의 지정테마를 불러오기
 		this.st.backController(mav, 2);
-		
+		MoneyBean mb = (MoneyBean)mav.getModel().get("moneyBean");
 		/* 지수 - 예산설정 페이지의 카테고리목록, 총예산설정금액, 현재 총 사용금액 불러오기*/
 		HashMap<String,String> map = new HashMap<String,String>();
 
@@ -68,6 +74,8 @@ public class Money implements AccountBookRule{
 			// 지수 - 예산 카테고리 별 정보 불러오기
 			// MMCODE 맵에 넣음
 			map.put("MMCODE", ((AccessBean)this.session.getAttribute("accessInfo")).getMMCODE());
+			// MONTH 맵에 넣음
+			map.put("MONTH", mb.getMONTH());
 			// 한번이라도 inout에 기록된 예산카테고리 리스트+한번도 기록안된 에산카테고리 리스트
 			mav.addObject("moList", this.makeMoList(this.sql.selectList("getMoList",map),map)+this.makeNMoList(this.sql.selectList("getNMoList"),map));
 			// 지수 - Max 예산금액, Min 예산금액 ,지금까지 사용한 총 예산금액 가져오기 
@@ -78,6 +86,29 @@ public class Money implements AccountBookRule{
 		}
 		mav.setViewName("money");
 	}
+	
+	@Transactional
+	private void entrance2(ModelAndView mav) {
+		// 지수 - 달력에서 선택한 달이 현재 달과 다를때
+		// 지수 - 예산 카테고리 별 정보 불러오기
+		HashMap<String,String> map = new HashMap<String,String>();
+		MoneyBean mb = (MoneyBean)mav.getModel().get("moneyBean");
+
+
+		try {
+			// MMCODE 맵에 넣음
+			map.put("MMCODE", ((AccessBean)this.session.getAttribute("accessInfo")).getMMCODE());
+			//MONTH 맵에 넣음
+			map.put("MONTH", mb.getMONTH());
+			// 선택한 달에 사용한 총 예산항목과 그에따른 예산금액
+			mav.addObject("moList", this.makeOldMoList(this.sql.selectList("getMoList",map),map));
+			mav.addObject("MONTH",mb.getMONTH());
+			mav.addObject("totalSpendBudget",this.sql.selectOne("getTotalSpendBudget",map));
+			mav.setViewName("money2");
+		} catch (Exception e) {
+			e.printStackTrace();}
+	}
+	
 	@Transactional
 	private void entrance(Model model, HashMap map) {
 		/* 지수 - 예산설정 페이지의 카테고리목록, 총예산설정금액, 현재 총 사용금액 불러오기*/
@@ -97,14 +128,27 @@ public class Money implements AccountBookRule{
 		}
 		model.addAttribute("map",map);
 	}
-
+	// 지수 - 지금 월이 아닌 예전에 한번이라도 INOUT에 기록된 예산 카테고리 별 정보 불러오기 
+	@Transactional
+	private String makeOldMoList(List<MoneyBean> moList,HashMap map) {
+		StringBuffer sb = new StringBuffer();
+		int idx = 1;
+		for(MoneyBean mb : moList) {
+			sb.append("<div class='old barDiv'  style='margin: 1rem;font-size: 1rem;' >");
+			sb.append("<div class='names title'>"+mb.getMONAME()+"</div>");
+			sb.append("<div class='names spend'>"+mb.getSPENDMONEY()+"원</div>");
+			sb.append("</div>");
+		}
+		return sb.toString();
+		
+	}
 	// 지수 - 한번이라도 INOUT에 기록된 예산 카테고리 별 정보 불러오기 
 	@Transactional
 	private String makeMoList(List<MoneyBean> moList,HashMap map) {
 		StringBuffer sb = new StringBuffer();
 		int idx = 1;
 		for(MoneyBean mb : moList) {
-			sb.append("<div class='barDiv' onclick=\"changeInfo(\'"+ idx+":"+mb.getMMCODE()+":"+mb.getMOCODE()+":"+mb.getMONAME()+":"+mb.getMOTOTAL()+"\')\" style='margin: 0.5rem;' >");
+			sb.append("<div class='barDiv' onclick=\"changeInfo(\'"+ idx+":"+mb.getMMCODE()+":"+mb.getMOCODE()+":"+mb.getMONAME()+":"+mb.getMOTOTAL()+"\')\" style='margin: 1rem;font-size: 1rem;' >");
 			sb.append("<div class='names title'>"+mb.getMONAME()+"</div>");
 			sb.append("<div class='names spend'>"+mb.getSPENDMONEY()+"원</div>");
 				if(mb.getPERBG()>100) { // 사용값이 예산 설정값을 초과했을때
@@ -128,7 +172,7 @@ public class Money implements AccountBookRule{
 
 		int idx = (int) map.get("idx");
 		for(MoneyBean mb : selectList) {
-			sb.append("<div class='barDiv' onclick=\"changeInfo(\'"+ idx+":"+mb.getMMCODE()+":"+mb.getMOCODE()+":"+mb.getMONAME()+":"+mb.getMOTOTAL()+"\')\" style='margin: 0.5rem;' >");
+			sb.append("<div class='barDiv' onclick=\"changeInfo(\'"+ idx+":"+mb.getMMCODE()+":"+mb.getMOCODE()+":"+mb.getMONAME()+":"+mb.getMOTOTAL()+"\')\" style='margin: 1rem;font-size: 1rem;' >");
 			sb.append("<div class='names title'>"+mb.getMONAME()+"</div>");
 			sb.append("<div class='names spend'>0원</div>");
 				if(mb.getPERBG()>100) { // 사용값이 예산 설정값을 초과했을때
@@ -152,7 +196,7 @@ public class Money implements AccountBookRule{
 			//db가서 입력받은 총 예산값으로 현재 총 예산값 변경하기
 			map.put("MMCODE", ((AccessBean)this.session.getAttribute("accessInfo")).getMMCODE());
 			map.put("TMMAX", mb.getTMMAX());
-			
+			map.put("MONTH", mb.getMONTH());
 			//새로운 값들을 moneyBean에 가져갈거라서 새로 선언
 			MoneyBean nmb = new MoneyBean();
 			if(this.convertToBoolean(this.sql.update("updTotalBudget",map))){
@@ -175,6 +219,7 @@ public class Money implements AccountBookRule{
 			//db가서 입력받은 총 예산값으로 현재 총 예산값 변경하기
 			map.put("MMCODE", ((AccessBean)this.session.getAttribute("accessInfo")).getMMCODE());
 			map.put("TMMIN", mb.getTMMIN());
+			map.put("MONTH", mb.getMONTH());
 			//새로운 값들을 moneyBean에 가져갈거라서 새로 선언
 			MoneyBean nmb = new MoneyBean();
 			if(this.convertToBoolean(this.sql.update("updMinBudget",map))){

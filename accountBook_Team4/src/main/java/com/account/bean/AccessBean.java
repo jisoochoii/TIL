@@ -15,4 +15,7 @@ public class AccessBean {
 	private String AHPUBLICIP;
 	private String AHPRIVATEIP;
 	private int AHACTION;
+	
+	/* 현재 달 */
+	private String MONTH;
 }

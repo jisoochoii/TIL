@@ -15,7 +15,9 @@
 <style>@import url("/resources/css/money.css");</style>
 
 <style>  
-           
+.barDiv{
+	
+}
 .container{
 	width : 100%;
 	height : 100%;}
@@ -51,6 +53,8 @@ function init() {
 	let money = "${MaxBudget}".split(",").join("")-"${totalSpendBudget}".split(",").join("");
 	let warn = document.getElementById("alert");
 	let minBudget = "${MinBudget}".split(",").join("");
+	let test = "${MaxBudget}";
+
 	if(b == 0){
 		if(minBudget>money){//예산이 min 이하 0 이상일때(잔여)
 			if(money>0){
@@ -64,14 +68,14 @@ function init() {
 		}
 	}
 	// 당월로 달력 기본 설정
-	document.getElementById('month').value= new Date().toISOString().slice(0, 7);
+	document.getElementById('MONTH').value= new Date().toISOString().slice(0, 7);
 }
 
 // 슬기 - 페이지 이동
 function movePage(jobCode) {
 	let form = document.getElementsByName("serverForm")[0];
 	form.action = jobCode;
-	form.method = "get";
+	form.method = "post";
 
 	form.submit();
 }
@@ -135,10 +139,8 @@ function updBueget(code){//code=순번:MMCODE:MOCODE:MONAME:MOTOTAL
 	let modalContent = document.getElementById("modalContent");
 
 	modalTitle.innerText = "수정";
-	modalContent.innerHTML = "<div>카테고리 이름</div>"
-		+"<input id='moneyName' maxlength='10' value=\'"+info[3]+"\' type='text'/>"
-		+ "<div>예산 금액</div>"
-		+"<input id='moneyBudget' maxlength='30' value=\'"+info[4]+"\' onkeyup=\"inputNumberFormat(this)\" type='text'/>"
+	modalContent.innerHTML = "<div>카테고리 이름 : <input id='moneyName' maxlength='10' value=\'"+info[3]+"\' type='text'/></div>"
+		+ "<div>예산금액 설정 : <input id='moneyBudget' maxlength='30' value=\'"+info[4]+"\' onkeyup=\"inputNumberFormat(this)\" type='text'/></div>"
 		+ "<input type='button' class = 'btnS' value='확인' onclick=\"confirmUpd(\'"+code+"\')\"/>"
 		+"<input type ='button' id = 'settingCancel' class = 'btnC' value = '취소' onClick = 'cancel()'' />";
 
@@ -185,12 +187,10 @@ function insBueget(){
 	const modal = document.querySelector(".modalBox");
 	let modalTitle = document.getElementById("modalTitle");
 	let modalContent = document.getElementById("modalContent");
-
+		
 	modalTitle.innerText = "추가";
-	modalContent.innerHTML = "<div>카테고리 이름</div>"
-			+"<input id='moneyName' maxlength='10' type='text'/>"
-			+ "<div>예산 금액</div>"
-			+"<input id='moneyBudget' maxlength='30' onkeyup=\"inputNumberFormat(this)\" type='text'/>"
+	modalContent.innerHTML = "<div>카테고리 이름 : <input id='moneyName' maxlength='10' type='text'/></div>"
+			+ "<div>예산금액 설정 : <input id='moneyBudget' maxlength='30' onkeyup=\"inputNumberFormat(this)\" type='text'/></div>"
 			+ "<input type='button' class = 'btnS'  value='확인' onclick=\"confirmIns()\"/>"
 			+"<input type ='button' id = 'settingCancel' class = 'btnC' value = '취소' onClick = 'cancel()'' />";
 
@@ -341,12 +341,25 @@ function cancel() {
 	modalBox.style.display = "none";
 	console.log("cancel");
 }
+//지수 - 캘린더 월 선택시 페이지이동
+function changeMonth(){
+	let form = document.getElementsByName("serverForm")[0];
+    
+	// 지수 - 선택한 달 서버로 보내주기
+	let month = document.getElementById("MONTH").value;
+	
+	form.appendChild(createHidden("MONTH", month));
 
+    form.action = "Money";
+    form.method = "post";
+
+    form.submit();
+}
 </script>
 </head>
 <body onload="init()">
     <div id="header">
-        <div id="yearBox"><input id="month" type="month" ></div>
+        <div id="yearBox"><input id="MONTH" type="month" onChange="changeMonth()" ></div>
         <div id="userInfo">사용자 정보<i class="fa-solid fa-user"></i></div>
         <div id="setting"><i class="fa-solid fa-gear"></i></div>
         <input type="button" value = "로그아웃" class = "btn" onclick = "logout()" />	<!-- 로그아웃 -->
@@ -376,9 +389,9 @@ function cancel() {
             </div>
         </div>
         <div class="rightBox">
-            <div class="monthBudgetT"><h1>8월 총 예산</h1><div onclick="changTotalBudget()" class="btns totalBgSet fa-solid fa-gear"></div></div>
+            <div id="monthBudgetT"class="monthBudgetT"><h1 id='fMonth'></h1><h1>총 예산</h1><div onclick="changTotalBudget()" class="btns totalBgSet fa-solid fa-gear"></div></div>
             <div id="monthBudget" class="monthBudget" style="color: gray;">${MaxBudget}원</div>
-            <div class="monthBudgetT"><h2>8월 최소예산</h2><div onclick="changMinBudget()" class="btns totalBgSet fa-solid fa-gear"></div></div>
+            <div class="monthBudgetT"><h2 id='sMonth'></h2><h2>최소 예산</h2><div onclick="changMinBudget()" class="btns totalBgSet fa-solid fa-gear"></div></div>
             <div id="monthMinBudget" class="monthMinBudget" style="color: gray;">${MinBudget}원</div>
             <div  class="cerentBedgetStat">
                 <div><h2>현재 총 지출액</h2></div>

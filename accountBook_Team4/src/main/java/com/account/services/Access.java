@@ -4,7 +4,9 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.crypto.BadPaddingException;
@@ -131,8 +133,17 @@ public class Access {
 	// 채이 - 로그인 제어
 	private void accessCtl(ModelAndView mav) {
 		AccessBean ac = ((AccessBean) mav.getModel().get("accessBean"));
-
+		
 		try {
+			/*
+			 지수 - 현재 월 "month"라는 이름으로 세션에 저장
+			long time = System.currentTimeMillis();
+			SimpleDateFormat date = new SimpleDateFormat("yyyy-MM");
+			date.format(new Date(time));
+
+			this.session.setAttribute("month", date.format(new Date(time)));
+
+			*/
 			if (this.session.getAttribute("accessInfo") != null) {
 				mav.setViewName("main");
 			} else {
